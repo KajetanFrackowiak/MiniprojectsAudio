@@ -75,9 +75,9 @@ def load_and_preprocess_data():
             audio = torch.tensor(audio).float()
 
         fbanks = extract_fbanks(audio, 16000)
-        fbanks = fbanks.transpose(0, 1)
+        fbanks = fbanks.transpose(0, 1)  # [n_fbanks, time] -> [time, n_fbanks]
 
-        text = LABEL_TO_WORD[example["label"]]
+        text = LABEL_TO_WORD[example["label"]]  
 
         return {
             "input_values": fbanks,  # [time, n_fbanks]
@@ -102,23 +102,28 @@ def text_to_tensor(text):
     return torch.tensor(indices, dtype=torch.long)
 
 def collate_fn(batch):
+    # input_values: list of tensors with shape [T, H] (time steps, filter bank features)
     input_values = [item["input_values"] for item in batch]
-    labels = [
-        text_to_tensor(item["text"]) for item in batch
-    ]
+
+    # labels: list of 1D tensors with encoded text as label indices
+    labels = [text_to_tensor(item["text"]) for item in batch]
+
     input_values = [
         torch.tensor(i) if not isinstance(i, torch.Tensor) else i for i in input_values
     ]
 
-    input_lengths = [iv.shape[0] for iv in input_values]
+    # input_lengths: original (unpadded) lengths of each input sequence (time steps)
+    input_lengths = [iv.shape[0] for iv in input_values] 
     target_lengths = [len(label) for label in labels]
-
+    
+    # Pad input sequences to the same length -> [B, T, H]
     padded_input_values = nn.utils.rnn.pad_sequence(
         input_values,
         batch_first=True,
         padding_value=0.0,
-    )
+    ) 
 
+    # Pad label sequences to the same length -> [B, T_label]
     padded_labels = nn.utils.rnn.pad_sequence(
         labels, batch_first=True, padding_value=CHAR_VOCAB["|"] if "|" in CHAR_VOCAB else 0
     )

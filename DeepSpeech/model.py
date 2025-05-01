@@ -38,7 +38,7 @@ class CustomRNN(nn.Module):
             # x (B, T, D), x[:, t, :] (B, D)
             h_fwd = self.fwd_cell(x[:, t, :], h_fwd)  # (B, D)
             fwd_outputs.append(h_fwd.unsqueeze(1))  # (B, 1, H)
-        fwd_outputs = torch.cat(fwd_outputs, dim=1)  #  list([B, 1, H], [B, 1, H]...) length T -> (B, T,   H)
+        fwd_outputs = torch.cat(fwd_outputs, dim=1)  #  list([B, 1, H], [B, 1, H]...) length T -> (B, T, H)
 
         if self.bidirectional:
             bwd_outputs = []

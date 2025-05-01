@@ -17,11 +17,16 @@ class CTC_Loss(nn.Module):
         self.ctc_loss = nn.CTCLoss(reduction="mean", zero_infinity=True)
 
     def forward(self, log_probs, targets, input_lengths, target_lengths):
+        # T = input sequence (time steps)
+        # N = batch size
+        # C = number of classes (including blank)
+        
+        # log_probs expected shape for nn.CTCLoss (T, N, C)
         if log_probs.ndim == 3:
-            log_probs = log_probs.permute(1, 0, 2)
+            log_probs = log_probs.permute(1, 0, 2)  # (N, T, C) -> (T, N, C)
         elif log_probs.ndim == 2:
-            log_probs = log_probs.unsqueeze(1)
-            log_probs = log_probs.permute(1, 0, 2)
+            log_probs = log_probs.unsqueeze(1)  # (N, C) -> (N, 1, C)
+            log_probs = log_probs.permute(1, 0, 2)  # (N, 1, C) -> (1, N, C)
             input_lengths = [input_lengths] if not isinstance(input_lengths, (list, tuple)) else input_lengths
             target_lengths = [target_lengths] if not isinstance(target_lengths, (list, tuple)) else target_lengths
         else:
