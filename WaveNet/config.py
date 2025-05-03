@@ -1,0 +1,16 @@
+import torch
+
+SAMPLE_RATE = 16000
+QUANTIZATION_CHANNELS = 256  # for mu-law encoding (8-bit)
+DILATIONS = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+             1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+RESIDUAL_CHANNELS = 16
+DILATION_CHANNELS = 16
+SKIP_CHANNELS = 128
+END_CHANNELS = 128
+LEARNING_RATE = 1e-3
+BATCH_SIZE = 16
+EPOCHS = 100
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+CHECKPOINT_INTERVAL = 5
+SEGMENT_LENGTH = 4000 # 0.5 second at 16kHz
